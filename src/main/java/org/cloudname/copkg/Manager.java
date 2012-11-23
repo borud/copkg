@@ -96,9 +96,23 @@ public class Manager {
             });
 
         final String url = coordinate.toUrl(baseUrl);
+
+        log.info("Downloading " + url);
+
         ListenableFuture<Response> r = c.prepareGet(url).execute(a);
         try {
             Response response = r.get();
+            if (response.getStatusCode() != 200) {
+
+                // Results in empty file.  Remove it
+                File emptyFile = new File(filename);
+                if (emptyFile.length() == 0L) {
+                    emptyFile.delete();
+                }
+
+                // TODO(borud): clean up!
+                throw new RuntimeException("Error: " + response.toString());
+            }
         } catch (InterruptedException e) {
             // TODO(borud): clean up
             throw new RuntimeException(e);

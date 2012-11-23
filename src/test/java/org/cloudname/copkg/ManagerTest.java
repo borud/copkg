@@ -36,7 +36,7 @@ public class ManagerTest {
 
         httpServer = new StaticHttpServer(port, "src/test/resources/staticroot");
         httpServer.start();
-        log.info("Started HTTP server on port " + port);
+        log.info("Started HTTP server " + baseUrl);
     }
 
     @AfterClass
@@ -58,4 +58,18 @@ public class ManagerTest {
         assertTrue(downloadedFile.exists());
         assertTrue(downloadedFile.length() != 0L);
     }
+
+    /**
+     * Test downloading a file that does NOT exist on the server.
+     *
+     * TODO(borud): should throw something more informative than
+     *   RuntimeException.
+     */
+    @Test (expected = RuntimeException.class)
+    public void testDownloadNotOk() throws Exception {
+        Manager m = new Manager(packageFolder.getAbsolutePath(), baseUrl);
+        PackageCoordinate coordinate = PackageCoordinate.parse("com.example:otherfact:1.2.3");
+        m.download(coordinate);
+    }
+
 }
