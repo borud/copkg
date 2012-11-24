@@ -1,11 +1,5 @@
 package org.cloudname.copkg;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Response;
-import com.ning.http.client.resumable.ResumableAsyncHandler;
-import com.ning.http.client.resumable.ResumableListener;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -14,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import java.util.concurrent.ExecutionException;
 
 /**
  * Package Manager.
@@ -25,6 +20,8 @@ public class Manager {
 
     // Name of download directory relative to basePackageDir
     private static final String DOWNLOAD_DIR = ".download";
+
+    private final Downloader downloader = new Downloader();
 
     private final String basePackageDir;
     private final String downloadDir;
@@ -55,70 +52,25 @@ public class Manager {
     /**
      * Download package
      */
-    public void download(PackageCoordinate coordinate) throws IOException {
+    public void download(PackageCoordinate coordinate)
+        throws IOException,
+               InterruptedException,
+               ExecutionException
+    {
         // TODO(borud) Replace this with some code that actually puts
         //   the file in a full pathFragment because if we do it this
         //   way two packages with the same artifact name and version
         //   but different groups will clash.
         ensureDownloadDirExists();
-        String filename = downloadDir + "/" + coordinate.getFilename();
-
-        final AsyncHttpClient c = new AsyncHttpClient();
-        final RandomAccessFile file = new RandomAccessFile(filename, "rw" );
-        final ResumableAsyncHandler a = new ResumableAsyncHandler();
-        a.setResumableListener( new ResumableListener() {
-
-                @Override
-                public void onBytesReceived(ByteBuffer byteBuffer) throws IOException {
-                    file.seek(file.length() );
-                    file.write(byteBuffer.array() );
-                }
-
-                @Override
-                public void onAllBytesReceived() {
-                    try {
-                        file.close();
-                    } catch (IOException e) {
-                        // TODO(borud): clean up
-                        throw new RuntimeException(e);
-                    }
-                }
-
-                @Override
-                public long length() {
-                    try {
-                        return file.length();
-                    } catch (IOException e) {
-                        // TODO(borud): clean up
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
-
+        final String filename = downloadDir + "/" + coordinate.getFilename();
         final String url = coordinate.toUrl(baseUrl);
 
-        log.info("Downloading " + url);
+        downloader.download(url, filename);
 
-        ListenableFuture<Response> r = c.prepareGet(url).execute(a);
-        try {
-            Response response = r.get();
-            if (response.getStatusCode() != 200) {
-
-                // Results in empty file.  Remove it
-                File emptyFile = new File(filename);
-                if (emptyFile.length() == 0L) {
-                    emptyFile.delete();
-                }
-
-                // TODO(borud): clean up!
-                throw new RuntimeException("Error: " + response.toString());
-            }
-        } catch (InterruptedException e) {
-            // TODO(borud): clean up
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
-            // TODO(borud): clean up
-            throw new RuntimeException(e);
+        // If it goes wrong, remove the file.
+        File emptyFile = new File(filename);
+        if (emptyFile.length() == 0L) {
+            emptyFile.delete();
         }
     }
 

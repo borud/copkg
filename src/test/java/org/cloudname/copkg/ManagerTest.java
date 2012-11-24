@@ -65,7 +65,7 @@ public class ManagerTest {
      * TODO(borud): should throw something more informative than
      *   RuntimeException.
      */
-    @Test (expected = RuntimeException.class)
+    @Test
     public void testDownloadNotOk() throws Exception {
         Manager m = new Manager(packageFolder.getAbsolutePath(), baseUrl);
         PackageCoordinate coordinate = PackageCoordinate.parse("com.example:otherfact:1.2.3");
