@@ -1,5 +1,7 @@
 package org.cloudname.copkg;
 
+import com.ning.http.client.Response;
+
 import java.io.File;
 import java.util.logging.Logger;
 
@@ -51,25 +53,26 @@ public class ManagerTest {
     public void testDownloadOk() throws Exception {
         Manager m = new Manager(packageFolder.getAbsolutePath(), baseUrl);
         PackageCoordinate coordinate = PackageCoordinate.parse("com.example:artifact:1.2.3");
-        m.download(coordinate);
+        int statusCode = m.download(coordinate);
+        assertEquals(200, statusCode);
 
-        log.info("File is now in " + packageFolder.getAbsolutePath());
-        File downloadedFile = new File(m.getDownloadDir(), coordinate.getFilename());
-        assertTrue(downloadedFile.exists());
-        assertTrue(downloadedFile.length() != 0L);
+        File downloadedFile = new File(m.destinationFileForCoordinate(coordinate));
+        assertTrue("File did not exist", downloadedFile.exists());
+        assertTrue("File had zero length", downloadedFile.length() != 0L);
     }
 
     /**
-     * Test downloading a file that does NOT exist on the server.
-     *
-     * TODO(borud): should throw something more informative than
-     *   RuntimeException.
+     * Test downloading a file that does not exists on the server.
      */
     @Test
-    public void testDownloadNotOk() throws Exception {
+    public void testDownload404() throws Exception {
         Manager m = new Manager(packageFolder.getAbsolutePath(), baseUrl);
-        PackageCoordinate coordinate = PackageCoordinate.parse("com.example:otherfact:1.2.3");
-        m.download(coordinate);
+        PackageCoordinate coordinate = PackageCoordinate.parse("com.example:nonexist:1.2.3");
+        int statusCode = m.download(coordinate);
+        assertEquals(404, statusCode);
+
+        File downloadedFile = new File(m.destinationFileForCoordinate(coordinate));
+        assertFalse("File existed", downloadedFile.exists());
     }
 
 }
