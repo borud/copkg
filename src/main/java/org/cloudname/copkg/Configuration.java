@@ -95,11 +95,18 @@ public class Configuration {
     }
 
     /**
-     * @return Configuration object based on JSON representation.
+     * @return Configuration instance based on JSON string.
      */
     public static Configuration fromJson(String json) throws IOException {
         final ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json, Configuration.class);
+        return new ObjectMapper().readValue(json, Configuration.class);
+    }
+
+    /**
+     * @return Configuration instance based on JSON read from file.
+     */
+    public static Configuration fromFile(File jsonFile) throws IOException {
+        return new ObjectMapper().readValue(jsonFile, Configuration.class);
     }
 
     @Override

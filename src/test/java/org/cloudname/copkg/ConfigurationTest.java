@@ -68,5 +68,7 @@ public class ConfigurationTest {
         // Test explicitly in case we have fucked up equals()
         assertEquals(config.getPackageDir(), parsedConfig.getPackageDir());
         assertEquals(config.getPackageBaseUrl(), parsedConfig.getPackageBaseUrl());
+
+        // TODO(borud): add missing unit test for fromFile() method.
     }
 }
