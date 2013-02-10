@@ -39,3 +39,4 @@ List of commands that we want to implement in command line utility.
   - List installed packages and use the package list to create a bundle artifact.
   
       `copkg list -bundle com.comoyo:svod-snapshot-bundle:2.3.4`
+      
