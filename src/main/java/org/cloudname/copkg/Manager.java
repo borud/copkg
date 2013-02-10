@@ -88,7 +88,6 @@ public class Manager {
      * Download, verify, unpack and verify installed
      */
     public void install(PackageCoordinate coordinate) {
-        // Verify zip-file
         // Unzip into destination dir
         // verify
         // move into place
