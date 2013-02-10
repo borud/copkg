@@ -70,7 +70,7 @@ public class Unzip {
             // If the entry is a directory we need not process any further.
             if (zipEntry.isDirectory()) {
                 destinationFile.mkdir();
-                log.info(" - Created dir " + destinationFile.getAbsolutePath());
+                log.fine(" - Created dir " + destinationFile.getAbsolutePath());
                 continue;
             }
 
@@ -91,7 +91,7 @@ public class Unzip {
                             + " for " + destinationFile.getAbsolutePath());
             }
 
-            log.info(" - Extracted " + destinationFile.getAbsolutePath() + " [" + totalBytes + "]");
+            log.fine(" - Extracted " + destinationFile.getAbsolutePath() + " [" + totalBytes + "]");
 
             outs.flush();
             outs.close();

@@ -1,5 +1,7 @@
 package org.cloudname.copkg;
 
+import org.cloudname.copkg.util.Unzip;
+
 import com.ning.http.client.Response;
 import com.ning.http.client.SimpleAsyncHttpClient;
 import com.ning.http.client.consumers.FileBodyConsumer;
@@ -14,49 +16,28 @@ import java.util.logging.Logger;
 import java.util.concurrent.Future;
 
 /**
- * Package Manager.
+ * Package Manager - provides methods for downloading, unpacking and
+ * installing copkg packages.
  *
  * @author borud
  */
 public class Manager {
     private static final Logger log = Logger.getLogger(Manager.class.getName());
 
-    // Name of download directory relative to basePackageDir
-    private static final String DOWNLOAD_DIR = ".download";
-
     private static final int REQUEST_TIMEOUT_MS = (5 * 60 * 1000);
     private static final int MAX_RETRY_ON_IOEXCEPTION = 5;
     private static final int MAX_CONNECTIONS_PER_HOST = 3;
     private static final int MAX_NUM_REDIRECTS = 3;
 
-    private final String basePackageDir;
-    private final String downloadDir;
-    private final String baseUrl;
+    private Configuration config;
 
     /**
      * Create a package manager for a given base package directory.
      *
-     * @param basePackageDir the base directory for where packages are
-     *   installed.
+     * @param config the configuration for the package manager.
      */
-    public Manager (final String basePackageDir, final String baseUrl) {
-        this.basePackageDir = basePackageDir;
-        this.baseUrl = baseUrl;
-
-        // Populate this but don't touch filesystem yet
-        downloadDir = basePackageDir
-            + (basePackageDir.endsWith("/") ? "" : "/")
-            + DOWNLOAD_DIR;
-    }
-
-    /**
-     * Download, verify, unpack and verify installed
-     */
-    public void install(PackageCoordinate coordinate) {
-        // Verify zip-file
-        // Unzip into destination dir
-        // verify
-        // move into place
+    public Manager (final Configuration config) {
+        this.config = config;
     }
 
     /**
@@ -68,15 +49,18 @@ public class Manager {
      * @param coordinate Package Coordinate of the package we wish to download.
      */
     public int download(PackageCoordinate coordinate) throws Exception {
-        final String destinationDir = destinationDirForCoordinate(coordinate);
-        final String destinationFile = destinationFileForCoordinate(coordinate);
+        final String downloadFilename = config.downloadFilenameForCoordinate(coordinate);
+
+        final File destinationFile = new File(downloadFilename);
+        final File destinationDir = destinationFile.getParentFile();
 
         // Ensure directories exist
-        new File(destinationDir).mkdirs();
-        final String url = coordinate.toUrl(baseUrl);
+        destinationDir.mkdirs();
 
-        log.info("destination dir  = " + destinationDir);
-        log.info("destination file = " + destinationFile);
+        final String url = coordinate.toUrl(config.getPackageBaseUrl());
+
+        log.info("destination dir  = " + destinationDir.getAbsolutePath());
+        log.info("destination file = " + destinationFile.getAbsolutePath());
 
         // Make client
         SimpleAsyncHttpClient client = new SimpleAsyncHttpClient.Builder()
@@ -94,37 +78,19 @@ public class Manager {
         // will end up with a file that contains junk.  We have to
         // make sure we delete it.
         if (response.getStatusCode() != 200) {
-            new File(destinationFile).delete();
+            destinationFile.delete();
             log.warning("Download failed. Status = " + response.getStatusCode() + ", msg = " + response.getStatusText());
         }
         return response.getStatusCode();
     }
 
-    public void verifyPackage(File packageFile) {
-    }
-
-    public void uninstall(PackageCoordinate coordinate) {
-    }
-
     /**
-     * The destination path inside the download directory for the coordinate.
-     *
-     * @param coordinate the package coordinate
-     * @return the destination directory name for the package when downloaded.
+     * Download, verify, unpack and verify installed
      */
-    public String destinationDirForCoordinate(PackageCoordinate coordinate) {
-        return downloadDir
-            + File.separatorChar
-            + coordinate.getPathFragment();
+    public void install(PackageCoordinate coordinate) {
+        // Verify zip-file
+        // Unzip into destination dir
+        // verify
+        // move into place
     }
-
-    /**
-     * Destination file path inside the download directory for the coordinate.
-     * @param coordinate the package coordinate.
-     * @return the destination file name for the package when downloaded.
-     */
-    public String destinationFileForCoordinate(PackageCoordinate coordinate) {
-        return destinationDirForCoordinate(coordinate) + File.separatorChar + coordinate.getFilename();
-    }
-
 }
