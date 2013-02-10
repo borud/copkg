@@ -11,7 +11,6 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import java.util.concurrent.Future;
 
 /**
@@ -54,6 +53,10 @@ public class Manager {
      * Download, verify, unpack and verify installed
      */
     public void install(PackageCoordinate coordinate) {
+        // Verify zip-file
+        // Unzip into destination dir
+        // verify
+        // move into place
     }
 
     /**
