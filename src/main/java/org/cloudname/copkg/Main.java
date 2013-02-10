@@ -64,8 +64,7 @@ public class Main {
 
 
         if ("list".equals(command)) {
-            String param = args[1];
-            uninstall(param);
+            list();
             return;
         }
 
