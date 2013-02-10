@@ -75,14 +75,8 @@ Anything that does not fit in `bin/` or `etc/` should go into lib.
 This directory will contain the scripts for starting and stopping the
 software.  Currently a valid `copkg` package requires two scripts:
 
-* start.sh
-* stop.sh
-
-*We will most likely be defining more optional scripts at a later
-point.  For instance we may need scripts for managing state that has
-been persisted to disk (typical use-case is moving it to a durable
-store and having a way to thaw the data from durable store at a later
-point).*
+* start.py
+* stop.py
 
 **Includes: src/main/copkg/script.d**
 
@@ -119,43 +113,3 @@ mimicks the way we calculate distribution URLs from coordinates.
 Note that once the package has been unpacked it is verboten to modify
 any of the files or add new files.  Each installed package can be in
 use by multiple running instances.
-
-## Starting and stopping
-
-As mentioned above, a valid `copkg` package needs at minimum a
-`start.sh` and a `stop.sh` script to manage the lifecycle of the
-software.  This hides any complexity in starting the application from
-the surrounding systems -- all `copkg` packages are started in the
-same manner.
-
-In order to start a package you will need to provide a runtime
-directory.
-
-### Generic runtime directory
-
-If you are not using the `copkg` with Cloudname you can use the
-generic way of specifying runtime directory.
-
-    start.sh --run=/my/runtime/directory
-	
-You need to supply the `stop.sh` script with the runtime directory as
-well.  This in case the startup script leaves PID files or state files
-indicating which host:port the service is listening to.
-
-    stop.sh --run=/my/runtime/directory
-
-### Running in conjunction with Cloudname
-
-If the software is supposed to run as a service under Cloudname it
-would make sense to use the service coordinate to calculate the path
-for the runtime directory and use this.  In this case you need to
-specify a `--coordinate` command line option that gives the `start.sh`
-script a *Cloudname coordinate*.
-
-    start.sh --coordinate=1.idee.prod.ie
-	
-Likewise the `stop.sh` script needs the coordinate to be able to stop
-the process:
-
-    stop.sh --coordinate=1.idee.prod.ie
-
