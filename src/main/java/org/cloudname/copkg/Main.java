@@ -130,9 +130,9 @@ public class Main {
      */
     private void resolve(String coordinateString) {
         PackageCoordinate coordinate = PackageCoordinate.parse(coordinateString);
+        System.out.println("installDir = " + config.getPackageDir() + File.separatorChar + coordinate.getPathFragment());
         System.out.println("downloadFilename = " + config.downloadFilenameForCoordinate(coordinate));
         System.out.println("downloadUrl = " + coordinate.toUrl(config.getPackageBaseUrl()));
-        System.out.println("installDir = " + config.getPackageDir() + File.separatorChar + coordinate.getPathFragment());
     }
 
     /**
