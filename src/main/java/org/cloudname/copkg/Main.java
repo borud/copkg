@@ -3,12 +3,19 @@ package org.cloudname.copkg;
 import java.io.File;
 import java.io.IOException;
 
+import java.util.logging.Logger;
+
 /**
  * Main class for the copkg package manager command line utility.
+ *
+ * This is a command line utility so throwing exceptions willy-nilly
+ * is just fine.
  *
  * @author borud
  */
 public class Main {
+    private static final Logger log = Logger.getLogger(Main.class.getName());
+
     public static final String COPKG_CONFIG_FILE = "config.json";
     public static final String COPKG_USER_DIR = ".copkg";
     public static final String COPKG_ETC_DIR = "copkg";
@@ -18,11 +25,13 @@ public class Main {
     public static final String COPKG_DEFAULT_PACKAGE_URL = "http://packages.skunk-works.no/copkg";
 
     private Manager manager;
+    private Configuration config;
 
     /**
      * Set up Main with appropriate configuration.
      */
     public Main(Configuration config) {
+        this.config = config;
         manager = new Manager(config);
     }
 
@@ -47,7 +56,7 @@ public class Main {
     /**
      * Dispatch commands
      */
-    private void dispatch(String[] args) {
+    private void dispatch(String[] args) throws Exception {
         String command = args[0];
 
         if ("install".equals(command)) {
@@ -68,6 +77,12 @@ public class Main {
             return;
         }
 
+        if ("resolve".equals(command)) {
+            String param = args[1];
+            resolve(param);
+            return;
+        }
+
         System.out.println("Command " + command + " not implemented");
         return;
     }
@@ -79,7 +94,7 @@ public class Main {
      * @param coordinateString the coordinate string of the package we
      *   wish to install.
      */
-    private void install(String coordinateString) {
+    private void install(String coordinateString) throws Exception {
         PackageCoordinate coordinate = PackageCoordinate.parse(coordinateString);
         manager.install(coordinate);
     }
@@ -102,6 +117,17 @@ public class Main {
     }
 
     /**
+     * Given a coordinate, output the install path, the download path
+     * etc given the current configuration.
+     */
+    private void resolve(String coordinateString) {
+        PackageCoordinate coordinate = PackageCoordinate.parse(coordinateString);
+        System.out.println("downloadFilename = " + config.downloadFilenameForCoordinate(coordinate));
+        System.out.println("downloadUrl = " + coordinate.toUrl(config.getPackageBaseUrl()));
+        System.out.println("installDir = " + config.getPackageDir() + File.separatorChar + coordinate.getPathFragment());
+    }
+
+    /**
      * Find configuration or make an appropriate default
      * configuration.  Will look in user's home directory first, then
      * /etc and then finally revert to defaults.
@@ -115,6 +141,7 @@ public class Main {
             + File.separatorChar
             + COPKG_CONFIG_FILE);
         if (home.exists()) {
+            log.info("Getting configuration from " + home.getAbsolutePath());
             return Configuration.fromFile(home);
         }
 
@@ -122,11 +149,13 @@ public class Main {
         // separator chars here)
         File etc = new File("/etc/" + COPKG_ETC_DIR + "/" + COPKG_CONFIG_FILE);
         if (etc.exists()) {
+            log.info("Getting configuration from " + home.getAbsolutePath());
             return Configuration.fromFile(etc);
         }
 
         // No configuration could be found so we fall back to defaults
         String packageDir = System.getProperty("user.home") + File.separatorChar + COPKG_HOME_PACKAGE_DIR;
+        log.info("Using default config ");
         return new Configuration(packageDir, COPKG_DEFAULT_PACKAGE_URL);
     }
 }

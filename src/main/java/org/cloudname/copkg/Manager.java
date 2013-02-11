@@ -19,6 +19,9 @@ import java.util.concurrent.Future;
  * Package Manager - provides methods for downloading, unpacking and
  * installing copkg packages.
  *
+ * TODO(borud): things here throw exceptions willy-nilly.  This has to
+ *   be cleaned up.
+ *
  * @author borud
  */
 public class Manager {
@@ -28,6 +31,8 @@ public class Manager {
     private static final int MAX_RETRY_ON_IOEXCEPTION = 5;
     private static final int MAX_CONNECTIONS_PER_HOST = 3;
     private static final int MAX_NUM_REDIRECTS = 3;
+
+    private static final String UNPACK_DIR_SUFFIX = "unpack";
 
     private Configuration config;
 
@@ -73,6 +78,7 @@ public class Manager {
             .build();
 
         Response response = client.get(new FileBodyConsumer(new RandomAccessFile(destinationFile, "rw"))).get();
+        client.close();
 
         // If the response code indicates anything other than 200 we
         // will end up with a file that contains junk.  We have to
@@ -87,9 +93,50 @@ public class Manager {
     /**
      * Download, verify, unpack and verify installed
      */
-    public void install(PackageCoordinate coordinate) {
-        // Unzip into destination dir
-        // verify
-        // move into place
+    public void install(PackageCoordinate coordinate) throws Exception {
+        File targetDir = new File(config.getPackageDir()
+                                  + File.separatorChar
+                                  + coordinate.getPathFragment());
+
+        // If the target directory exists, we assume the package is
+        // installed and bail early
+        if (targetDir.exists()) {
+            log.warning("Target dir " + targetDir.getAbsolutePath() + " exists.  Already installed?");
+            return;
+        }
+
+        int response = download(coordinate);
+        if (response != 200) {
+            log.warning("Download failed with code HTTP response " + response + " for " + coordinate);
+            return;
+        }
+
+        // Make sure we have the download file
+        File downloadFile = new File(config.downloadFilenameForCoordinate(coordinate));
+        if (! downloadFile.exists()) {
+            log.warning("Couldn't find downloaded file " + downloadFile.getAbsolutePath());
+            return;
+        }
+
+        // Create a directory for unpacking.
+        //
+        // TODO(borud): this is where we want to add some form of
+        // dotlocking later to make it possible to run concurrent
+        // installs from different processes as long as they operate
+        // on different packages.  This is preferable to having a
+        // master lock.
+        File unpackDir = new File(targetDir.getAbsolutePath()
+                                  + "---"
+                                  + UNPACK_DIR_SUFFIX);
+        unpackDir.mkdirs();
+
+        // Now unzip the file into the unpack dir
+        Unzip.unzip(downloadFile, unpackDir);
+
+        // Move into place
+        if (! unpackDir.renameTo(targetDir)) {
+            log.warning("Unable to rename from " + unpackDir.getAbsolutePath()
+                        + " to " + targetDir.getAbsolutePath());
+        }
     }
 }
