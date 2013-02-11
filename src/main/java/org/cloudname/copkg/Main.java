@@ -40,7 +40,13 @@ public class Main {
      */
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
-            System.out.println("\nUsage: install <coordinate>\n");
+            System.out.println("\n"
+                               + "Usage: install <coordinate>   - install package given by coordinaten\n"
+                               + "       uninstall <coordinate> - uninstall package given by coordinate\n"
+                               + "       list                   - list installed packages\n"
+                               + "       resolve <coordinate>   - output paths and URLs for a given coordinate\n"
+
+            );
             return;
         }
 
@@ -107,6 +113,7 @@ public class Main {
      */
     private void uninstall(String coordinateString) {
         // TODO(borud): implement
+        log.warning("Not implemented yet");
     }
 
     /**
@@ -114,6 +121,7 @@ public class Main {
      */
     private void list() {
         // TODO(borud): implement
+        log.warning("Not implemented yet");
     }
 
     /**

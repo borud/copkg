@@ -20,7 +20,8 @@ import java.util.concurrent.Future;
  * installing copkg packages.
  *
  * TODO(borud): things here throw exceptions willy-nilly.  This has to
- *   be cleaned up.
+ *   be cleaned up.  It is okay for the command line utility, but as
+ *   part of other programs this won't do.
  *
  * @author borud
  */
@@ -105,6 +106,7 @@ public class Manager {
             return;
         }
 
+        // Fetch the file from the package repository
         int response = download(coordinate);
         if (response != 200) {
             log.warning("Download failed with code HTTP response " + response + " for " + coordinate);
@@ -133,7 +135,7 @@ public class Manager {
         // Now unzip the file into the unpack dir
         Unzip.unzip(downloadFile, unpackDir);
 
-        // Move into place
+        // Move into place.  On unixen this is atomic.
         if (! unpackDir.renameTo(targetDir)) {
             log.warning("Unable to rename from " + unpackDir.getAbsolutePath()
                         + " to " + targetDir.getAbsolutePath());
