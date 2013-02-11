@@ -8,6 +8,10 @@ List of commands that we want to implement in command line utility.
 - `uninstall {coordinate}` - Uninstalls package given by `{coordinate}`.
 - `list` - list installed packages
 
+## Sanity checking
+- Have some form of sanity checking on Package Coordinates.  Mostly to
+  make sure people do not come up with divergent schemes.
+
 ## Package integrity
 - Add MD5 checksum for all files in a package
 - Add verification step to the unpacking process
