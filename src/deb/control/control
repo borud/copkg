@@ -1,0 +1,9 @@
+Package: [[name]]
+Version: [[version]]
+Section: misc
+Priority: optional
+Architecture: all
+Depends: java7-runtime-headless, jarwrapper
+Maintainer: Bjørn Borud <borud@comoyo.com>
+Description: Comoyo package deployment
+Distribution: development
