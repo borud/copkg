@@ -1,4 +1,4 @@
-package org.cloudname.fire;
+package org.cloudname.copkg;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Objects;
@@ -13,13 +13,13 @@ public final class Result {
     private final String stderr;
     private final Status status;
     private final String message;
-    private final int exitValue;
+    private final int exitCode;
 
     public enum Status {
         SUCCESS,
         SCRIPT_NOT_FOUND,
         SCRIPT_NOT_EXECUTABLE,
-        RETURN_VALUE_NON_NULL,
+        ERROR,
         OTHER,
     }
 
@@ -36,12 +36,32 @@ public final class Result {
                   final String stderr,
                   final Status status,
                   final String message,
-                  final int exitValue) {
+                  final int exitCode) {
         this.stdout = checkNotNull(stdout);
         this.stderr = checkNotNull(stderr);
         this.status = checkNotNull(status);
         this.message = checkNotNull(message);
-        this.exitValue = exitValue;
+        this.exitCode = exitCode;
+    }
+
+    public String getStdout() {
+        return stdout;
+    }
+
+    public String getStderr() {
+        return stderr;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public int getExitCode() {
+        return exitCode;
     }
 
     /**
@@ -52,8 +72,8 @@ public final class Result {
      * @return a Result with status and message set and everything else set to
      *   "neutral" values.
      */
-    public static Result makeError(final Status status, final String message) {
-        return new Result("", "", checkNotNull(status), checkNotNull(message), 0);
+    public static Result makeError(final Status status, final String message, final int exitCode) {
+        return new Result("", "", checkNotNull(status), checkNotNull(message), exitCode);
     }
 
     @Override
@@ -63,7 +83,7 @@ public final class Result {
             .add("stderr", stderr)
             .add("status", status)
             .add("message", message)
-            .add("exitValue", exitValue)
+            .add("exitCode", exitCode)
             .toString();
     }
 }

@@ -1,4 +1,4 @@
-package org.cloudname.fire;
+package org.cloudname.copkg;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Objects;
