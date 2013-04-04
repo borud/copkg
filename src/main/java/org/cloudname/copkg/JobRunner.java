@@ -36,27 +36,29 @@ public final class JobRunner {
     }
 
     /**
-     * Run a Job.  The job is expected to just start the service and
+     * Start a Job.  The job is expected to just start the service and
      * then terminate.  If this job hangs for an unacceptably long
      * time or it produces exorbitant amounts of output, we
      * unceremoniously terminate the process.
      *
      * @return a Result instance.
      */
-    public Result runJob(final Job job) throws IOException, InterruptedException {
+    public Result startJob(final Job job) throws IOException, InterruptedException {
         File startScript = startScriptForJob(job);
         log.info("start script: " + startScript.getAbsolutePath());
 
         if (! startScript.exists()) {
-            return Result.makeError(Result.Status.SCRIPT_NOT_FOUND,
-                                    "Script does not exist: " + startScript.getAbsolutePath(),
-                                    0);
+            return Result.makeError(
+                Result.Status.SCRIPT_NOT_FOUND,
+                "Script does not exist: " + startScript.getAbsolutePath(),
+                0);
         }
 
         if (! startScript.canExecute()) {
-            return Result.makeError(Result.Status.SCRIPT_NOT_EXECUTABLE,
-                                    "Script is not executable: " + startScript.getAbsolutePath(),
-                                    0);
+            return Result.makeError(
+                Result.Status.SCRIPT_NOT_EXECUTABLE,
+                "Script is not executable: " + startScript.getAbsolutePath(),
+                0);
         }
 
         PackageCoordinate packageCoordinate = PackageCoordinate.parse(job.getPackageCoordinate());

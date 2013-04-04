@@ -245,4 +245,14 @@ public class Manager {
 
         log.info("Uninstalled " + coordinate.toString());
     }
+
+    /**
+     * Check if a package is installed.
+     *
+     * @return {@code true} if the package is installed and {@code
+     *   false} if it isn't.
+     */
+    public boolean isInstalled(PackageCoordinate coordinate) {
+        return new File(config.packageDirectoryForCoordinate(coordinate)).exists();
+    }
 }

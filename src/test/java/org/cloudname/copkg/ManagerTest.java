@@ -93,4 +93,17 @@ public class ManagerTest {
         assertFalse(new File(installDir).exists());
     }
 
+
+    /**
+     * Test for isInstalled() predicate.
+     */
+    @Test
+    public void testIsInstalled() throws Exception {
+        Manager m = new Manager(config);
+        PackageCoordinate coordinate = PackageCoordinate.parse("com.example:artifact:1.2.3");
+        assertFalse(m.isInstalled(coordinate));
+        m.install(coordinate);
+        assertTrue(m.isInstalled(coordinate));
+    }
+
 }

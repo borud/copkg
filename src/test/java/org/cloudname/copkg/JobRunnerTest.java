@@ -89,9 +89,9 @@ public class JobRunnerTest {
     }
 
     @Test
-    public void testJobRunner() throws Exception {
+    public void testStartJob() throws Exception {
         JobRunner runner = new JobRunner(config);
-        Result result = runner.runJob(ok);
+        Result result = runner.startJob(ok);
         assertSame(Result.Status.SUCCESS, result.getStatus());
         assertEquals(0, result.getExitCode());
     }

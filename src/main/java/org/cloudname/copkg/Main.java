@@ -225,7 +225,7 @@ public class Main {
                                     params);
 
             // Run the job!
-            final Result result = new JobRunner(config).runJob(job);
+            final Result result = new JobRunner(config).startJob(job);
             System.out.println(result.toString());
             return;
         }
