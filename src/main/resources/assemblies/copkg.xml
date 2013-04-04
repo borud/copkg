@@ -40,6 +40,15 @@
         <include>**</include>
       </includes>
     </fileSet>
+
+    <fileSet>
+      <!-- Include files that do not fit in bin or etc -->
+      <directory>target/copkg</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>**</include>
+      </includes>
+    </fileSet>
     
     <fileSet>
       <!-- Include include built targets -->
