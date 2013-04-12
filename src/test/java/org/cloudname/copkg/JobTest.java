@@ -1,4 +1,4 @@
-package org.cloudname.fire;
+package org.cloudname.copkg;
 
 import com.google.common.testing.EqualsTester;
 

@@ -1,11 +1,15 @@
-package org.cloudname.fire;
+package org.cloudname.copkg;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.cloudname.copkg.Configuration;
 import org.cloudname.copkg.PackageCoordinate;
 
+import java.util.List;
+import java.util.LinkedList;
+import java.util.Collections;
 import java.io.File;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
@@ -32,28 +36,54 @@ public final class JobRunner {
     }
 
     /**
-     * Run a Job.  The job is expected to just start the service and
+     * Start a Job.  The job is expected to just start the service and
      * then terminate.  If this job hangs for an unacceptably long
      * time or it produces exorbitant amounts of output, we
      * unceremoniously terminate the process.
      *
      * @return a Result instance.
      */
-    public Result runJob(final Job job) {
+    public Result startJob(final Job job) throws IOException, InterruptedException {
         File startScript = startScriptForJob(job);
         log.info("start script: " + startScript.getAbsolutePath());
 
         if (! startScript.exists()) {
-            return Result.makeError(Result.Status.SCRIPT_NOT_FOUND,
-                                    "Script does not exist: " + startScript.getAbsolutePath());
+            return Result.makeError(
+                Result.Status.SCRIPT_NOT_FOUND,
+                "Script does not exist: " + startScript.getAbsolutePath(),
+                0);
         }
 
         if (! startScript.canExecute()) {
-            return Result.makeError(Result.Status.SCRIPT_NOT_EXECUTABLE,
-                                    "Script is not executable: " + startScript.getAbsolutePath());
+            return Result.makeError(
+                Result.Status.SCRIPT_NOT_EXECUTABLE,
+                "Script is not executable: " + startScript.getAbsolutePath(),
+                0);
         }
 
-        return null;
+        PackageCoordinate packageCoordinate = PackageCoordinate.parse(job.getPackageCoordinate());
+        File workingDirectory = new File(config.packageDirectoryForCoordinate(packageCoordinate));
+
+        // TODO(borud): Figure out how this ought to be done on
+        // Windows.
+        List<String> arguments = new LinkedList<String>();
+        arguments.add(startScript.getAbsolutePath());
+        Collections.addAll(arguments, job.getOptionArray());
+
+        // Create new process
+        Process process = new ProcessBuilder()
+            .command(arguments)
+            .directory(workingDirectory)
+            .start();
+
+        // TODO(borud): use future
+        int exitCode = process.waitFor();
+
+        if (exitCode == 0) {
+            return new Result("", "", Result.Status.SUCCESS, "Script ran successfully", exitCode);
+        }
+
+        return Result.makeError(Result.Status.ERROR, "onzero exit code", exitCode);
     }
 
     /**

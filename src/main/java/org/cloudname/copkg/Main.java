@@ -1,9 +1,5 @@
 package org.cloudname.copkg;
 
-import org.cloudname.fire.Job;
-import org.cloudname.fire.JobRunner;
-import org.cloudname.fire.Result;
-
 import org.cloudname.copkg.util.LogSetup;
 import org.cloudname.copkg.util.Argument;
 import org.cloudname.copkg.util.ArgumentParser;
@@ -229,7 +225,7 @@ public class Main {
                                     params);
 
             // Run the job!
-            final Result result = new JobRunner(config).runJob(job);
+            final Result result = new JobRunner(config).startJob(job);
             System.out.println(result.toString());
             return;
         }
