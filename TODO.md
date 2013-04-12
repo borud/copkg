@@ -2,7 +2,6 @@
 
 ## Next hacking session
 
-- Make Homebrew package
 - Make sample copkg complete with start.py, stop.py and status.py
 - Figure out how to version start.py/stop.py/status.py
 - Implement JobRunner
