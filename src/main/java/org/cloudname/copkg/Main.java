@@ -138,6 +138,7 @@ public class Main {
      * going to handle commands as well as command line options that
      * are not parsed as command line options.  Fun, eh?
      */
+    // TODO(borud): this method is getting long.  Break it up.
     private void dispatch() throws Exception {
         // Deal with the non-option arguments
         List<Argument> arguments = ArgumentParser.parse(optionSet.nonOptionArguments().toArray(new String[] {}));
@@ -255,6 +256,8 @@ public class Main {
 
         printHelp();
     }
+
+
 
 
     /**
