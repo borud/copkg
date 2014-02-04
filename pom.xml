@@ -93,6 +93,48 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <artifactId>jdeb</artifactId>
+        <groupId>org.vafer</groupId>
+        <version>1.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>jdeb</goal>
+            </goals>
+            <configuration>
+              <dataSet>
+                <data>
+                  <src>README.md</src>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+		    <prefix>/usr/share/doc/copkg</prefix>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar</src>
+		  <dst>copkg.jar</dst>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share/copkg</prefix>
+                    <filemode>0755</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <type>link</type>
+                  <linkName>/usr/bin/copkg</linkName>
+                  <linkTarget>/usr/share/copkg/copkg.jar</linkTarget>
+                  <symlink>true</symlink>
+                </data>
+              </dataSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
